@@ -7,73 +7,78 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
-    <div class="app-container">
+<body class="light-theme">
+    <div class="particles" id="particles"></div>
+    <div class="calculator-container">
         <div class="calculator">
-            <div class="calculator-header">
-                <div class="title-area">
+            <div class="glass-effect"></div>
+            <div class="header">
+                <div class="title-section">
                     <h1>Quantum Calculator</h1>
-                    <span class="version">v2.0</span>
+                    <span class="subtitle">Advanced Computing</span>
                 </div>
                 <div class="controls">
-                    <button id="historyToggle" class="control-btn">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </button>
-                    <button id="themeToggle" class="control-btn">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
-                        </svg>
+                    <button id="themeToggle" class="theme-toggle">
+                        <svg class="sun-icon" viewBox="0 0 24 24"><path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2a7 7 0 1 1 0-14 7 7 0 0 1 0 14zM12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                        <svg class="moon-icon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0-6 6c0 3.314 2.686 6 6 6s6-2.686 6-6a6 6 0 0 0-6-6z"/></svg>
                     </button>
                 </div>
             </div>
 
             <div class="display-container">
                 <div class="display">
-                    <div class="expression" id="expression"></div>
-                    <div class="result" id="result">0</div>
+                    <input type="text" id="expression" readonly placeholder="Enter expression">
+                    <input type="text" id="result" readonly placeholder="Result">
                 </div>
+                <div class="display-gradient"></div>
             </div>
 
-            <div class="keypad">
-                <button class="key function">sin</button>
-                <button class="key function">cos</button>
-                <button class="key function">tan</button>
-                <button class="key operator">÷</button>
+            <div class="buttons">
+                <button class="function-btn" data-type="clear">AC</button>
+                <button class="function-btn" data-type="bracket">(</button>
+                <button class="function-btn" data-type="bracket">)</button>
+                <button class="operator-btn" data-type="operator">÷</button>
 
-                <button class="key function">√</button>
-                <button class="key">7</button>
-                <button class="key">8</button>
-                <button class="key">9</button>
+                <button class="number-btn">7</button>
+                <button class="number-btn">8</button>
+                <button class="number-btn">9</button>
+                <button class="operator-btn" data-type="operator">×</button>
 
-                <button class="key function">x²</button>
-                <button class="key">4</button>
-                <button class="key">5</button>
-                <button class="key">6</button>
+                <button class="number-btn">4</button>
+                <button class="number-btn">5</button>
+                <button class="number-btn">6</button>
+                <button class="operator-btn" data-type="operator">−</button>
 
-                <button class="key operator">×</button>
-                <button class="key">1</button>
-                <button class="key">2</button>
-                <button class="key">3</button>
+                <button class="number-btn">1</button>
+                <button class="number-btn">2</button>
+                <button class="number-btn">3</button>
+                <button class="operator-btn" data-type="operator">+</button>
 
-                <button class="key operator">-</button>
-                <button class="key">0</button>
-                <button class="key">.</button>
-                <button class="key operator">+</button>
-
-                <button class="key clear">C</button>
-                <button class="key function">(</button>
-                <button class="key function">)</button>
-                <button class="key equals">=</button>
+                <button class="number-btn">0</button>
+                <button class="number-btn">.</button>
+                <button class="equals-btn" data-type="equals">=</button>
+                <button class="function-btn" data-type="backspace">⌫</button>
             </div>
 
-            <div class="history-panel" id="historyPanel">
+            <div class="advanced-functions">
+                <button class="advanced-btn" data-type="function">sin</button>
+                <button class="advanced-btn" data-type="function">cos</button>
+                <button class="advanced-btn" data-type="function">tan</button>
+                <button class="advanced-btn" data-type="function">log</button>
+                <button class="advanced-btn" data-type="constant">π</button>
+                <button class="advanced-btn" data-type="constant">e</button>
+                <button class="advanced-btn" data-type="function">√</button>
+                <button class="advanced-btn" data-type="operator">^</button>
+            </div>
+
+            <div class="history-panel">
                 <div class="history-header">
                     <h3>History</h3>
-                    <button id="clearHistory" class="clear-history">Clear</button>
+                    <button id="clearHistory" class="clear-history-btn">
+                        <svg viewBox="0 0 24 24"><path d="M19 6h-4V5a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v1H5a1 1 0 1 0 0 2h1v11a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V8h1a1 1 0 1 0 0-2z"/></svg>
+                    </button>
                 </div>
-                <div class="history-list" id="historyList"></div>
+                <div class="history" id="history"></div>
             </div>
         </div>
     </div>
