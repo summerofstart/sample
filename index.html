@@ -1,0 +1,336 @@
+import React from 'react';
+import { useReducer, useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Moon, Sun, History, Calculator, GraphIcon, Repeat, X } from 'lucide-react';
+
+type State = {
+  display: string;
+  memory: number;
+  history: string[];
+  mode: 'standard' | 'complex' | 'programmer';
+  base: number;
+  theme: 'light' | 'dark';
+  showHistory: boolean;
+};
+
+type Action =
+  | { type: 'SET_DISPLAY'; payload: string }
+  | { type: 'APPEND_DISPLAY'; payload: string }
+  | { type: 'CLEAR_DISPLAY' }
+  | { type: 'SET_MEMORY'; payload: number }
+  | { type: 'ADD_HISTORY'; payload: string }
+  | { type: 'CLEAR_HISTORY' }
+  | { type: 'SET_MODE'; payload: State['mode'] }
+  | { type: 'SET_BASE'; payload: number }
+  | { type: 'TOGGLE_THEME' }
+  | { type: 'TOGGLE_HISTORY' };
+
+const initialState: State = {
+  display: '0',
+  memory: 0,
+  history: [],
+  mode: 'standard',
+  base: 10,
+  theme: 'light',
+  showHistory: false,
+};
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'SET_DISPLAY':
+      return { ...state, display: action.payload };
+    case 'APPEND_DISPLAY':
+      return { ...state, display: state.display === '0' ? action.payload : state.display + action.payload };
+    case 'CLEAR_DISPLAY':
+      return { ...state, display: '0' };
+    case 'SET_MEMORY':
+      return { ...state, memory: action.payload };
+    case 'ADD_HISTORY':
+      return { ...state, history: [...state.history, action.payload] };
+    case 'CLEAR_HISTORY':
+      return { ...state, history: [] };
+    case 'SET_MODE':
+      return { ...state, mode: action.payload };
+    case 'SET_BASE':
+      return { ...state, base: action.payload };
+    case 'TOGGLE_THEME':
+      return { ...state, theme: state.theme === 'light' ? 'dark' : 'light' };
+    case 'TOGGLE_HISTORY':
+      return { ...state, showHistory: !state.showHistory };
+    default:
+      return state;
+  }
+}
+
+const CalculatorButton = ({ children, onClick, variant = "default", className = "" }) => (
+  <Button 
+    onClick={onClick}
+    variant={variant}
+    className={`h-14 text-lg font-medium transition-all hover:scale-105 active:scale-95 ${className}`}
+  >
+    {children}
+  </Button>
+);
+
+export default function AdvancedCalculator() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const [graphData, setGraphData] = useState<{ x: number; y: number }[]>([]);
+
+  const handleClick = (value: string) => {
+    dispatch({ type: 'APPEND_DISPLAY', payload: value });
+  };
+
+  const calculate = () => {
+    try {
+      let result: string | number;
+      if (state.mode === 'complex') {
+        result = eval(`(${state.display}).toString()`);
+      } else if (state.mode === 'programmer') {
+        result = eval(`(${parseInt(state.display, state.base)}).toString(${state.base})`);
+      } else {
+        result = eval(state.display);
+      }
+      dispatch({ type: 'SET_DISPLAY', payload: result.toString() });
+      dispatch({ type: 'ADD_HISTORY', payload: `${state.display} = ${result}` });
+    } catch (error) {
+      dispatch({ type: 'SET_DISPLAY', payload: 'Error' });
+    }
+  };
+
+  const handleFunction = (func: string) => {
+    try {
+      let result: number;
+      if (func === 'sqrt') {
+        result = Math.sqrt(parseFloat(state.display));
+      } else {
+        result = Math[func](parseFloat(state.display));
+      }
+      dispatch({ type: 'SET_DISPLAY', payload: result.toString() });
+      dispatch({ type: 'ADD_HISTORY', payload: `${func}(${state.display}) = ${result}` });
+    } catch (error) {
+      dispatch({ type: 'SET_DISPLAY', payload: 'Error' });
+    }
+  };
+
+  const handleMemory = (operation: string) => {
+    switch (operation) {
+      case 'M+':
+        dispatch({ type: 'SET_MEMORY', payload: state.memory + parseFloat(state.display) });
+        break;
+      case 'M-':
+        dispatch({ type: 'SET_MEMORY', payload: state.memory - parseFloat(state.display) });
+        break;
+      case 'MR':
+        dispatch({ type: 'SET_DISPLAY', payload: state.memory.toString() });
+        break;
+      case 'MC':
+        dispatch({ type: 'SET_MEMORY', payload: 0 });
+        break;
+    }
+  };
+
+  const handleGraphDraw = () => {
+    const data = [];
+    for (let x = -10; x <= 10; x += 0.5) {
+      try {
+        const y = eval(state.display.replace(/x/g, x.toString()));
+        data.push({ x, y });
+      } catch (error) {
+        console.error('Error evaluating expression:', error);
+      }
+    }
+    setGraphData(data);
+  };
+
+  return (
+    <div className={`min-h-screen bg-background p-6 ${state.theme}`}>
+      <Card className="max-w-4xl mx-auto">
+        <CardHeader className="space-y-1">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <Calculator className="h-6 w-6" />
+              <CardTitle className="text-2xl">Engineering Calculator</CardTitle>
+            </div>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => dispatch({ type: 'TOGGLE_HISTORY' })}
+                className={state.showHistory ? "bg-secondary" : ""}
+              >
+                <History className="h-5 w-5" />
+              </Button>
+              <div className="flex items-center gap-2">
+                <Sun className="h-4 w-4" />
+                <Switch
+                  checked={state.theme === 'dark'}
+                  onCheckedChange={() => dispatch({ type: 'TOGGLE_THEME' })}
+                />
+                <Moon className="h-4 w-4" />
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <div className={`lg:col-span-${state.showHistory ? '3' : '5'} space-y-6`}>
+              <Tabs 
+                defaultValue="standard" 
+                onValueChange={(value) => dispatch({ type: 'SET_MODE', payload: value as State['mode'] })}
+                className="w-full"
+              >
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="standard">Standard</TabsTrigger>
+                  <TabsTrigger value="complex">Complex</TabsTrigger>
+                  <TabsTrigger value="programmer">Programmer</TabsTrigger>
+                </TabsList>
+
+                <div className="mt-6">
+                  <Input
+                    value={state.display}
+                    readOnly
+                    className="text-right text-3xl h-16 mb-6 bg-muted font-mono"
+                  />
+
+                  <TabsContent value="standard" className="space-y-4 mt-0">
+                    <div className="grid grid-cols-4 gap-2">
+                      <CalculatorButton onClick={() => handleMemory('MC')} variant="outline">MC</CalculatorButton>
+                      <CalculatorButton onClick={() => handleMemory('MR')} variant="outline">MR</CalculatorButton>
+                      <CalculatorButton onClick={() => handleMemory('M+')} variant="outline">M+</CalculatorButton>
+                      <CalculatorButton onClick={() => handleMemory('M-')} variant="outline">M-</CalculatorButton>
+
+                      <CalculatorButton onClick={() => handleFunction('sqrt')} variant="secondary">√</CalculatorButton>
+                      <CalculatorButton onClick={() => handleFunction('pow')} variant="secondary">x²</CalculatorButton>
+                      <CalculatorButton onClick={() => handleClick('/')} variant="secondary">÷</CalculatorButton>
+                      <CalculatorButton onClick={() => dispatch({ type: 'CLEAR_DISPLAY' })} variant="destructive">C</CalculatorButton>
+
+                      {['7', '8', '9', '*', '4', '5', '6', '-', '1', '2', '3', '+', '0', '.', '='].map((btn) => (
+                        <CalculatorButton
+                          key={btn}
+                          onClick={btn === '=' ? calculate : () => handleClick(btn)}
+                          variant={['*', '/', '+', '-'].includes(btn) ? 'secondary' : btn === '=' ? 'default' : 'ghost'}
+                          className={btn === '=' ? 'col-span-2 bg-primary' : ''}
+                        >
+                          {btn}
+                        </CalculatorButton>
+                      ))}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="complex" className="space-y-4 mt-0">
+                    <div className="grid grid-cols-4 gap-2">
+                      {['7', '8', '9', '/', '4', '5', '6', '*', '1', '2', '3', '-', '0', '.', 'i', '+'].map((btn) => (
+                        <CalculatorButton
+                          key={btn}
+                          onClick={() => handleClick(btn)}
+                          variant={['*', '/', '+', '-'].includes(btn) ? 'secondary' : 'ghost'}
+                        >
+                          {btn}
+                        </CalculatorButton>
+                      ))}
+                    </div>
+                    <CalculatorButton onClick={calculate} className="w-full">Calculate</CalculatorButton>
+                  </TabsContent>
+
+                  <TabsContent value="programmer" className="space-y-4 mt-0">
+                    <Select onValueChange={(value) => dispatch({ type: 'SET_BASE', payload: parseInt(value) })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select base" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="2">Binary</SelectItem>
+                        <SelectItem value="8">Octal</SelectItem>
+                        <SelectItem value="10">Decimal</SelectItem>
+                        <SelectItem value="16">Hexadecimal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="grid grid-cols-4 gap-2">
+                      {['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'].map((btn) => (
+                        <CalculatorButton
+                          key={btn}
+                          onClick={() => handleClick(btn)}
+                          disabled={parseInt(btn, 16) >= state.base}
+                          variant="ghost"
+                        >
+                          {btn}
+                        </CalculatorButton>
+                      ))}
+                    </div>
+                  </TabsContent>
+                </div>
+              </Tabs>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <GraphIcon className="h-4 w-4" />
+                    Graph Equation
+                  </Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={state.display}
+                      onChange={(e) => dispatch({ type: 'SET_DISPLAY', payload: e.target.value })}
+                      placeholder="e.g. Math.sin(x)"
+                      className="font-mono"
+                    />
+                    <Button onClick={handleGraphDraw}>Draw</Button>
+                  </div>
+                </div>
+                <div className="bg-card rounded-lg p-4">
+                  <ResponsiveContainer width="100%" height={200}>
+                    <LineChart data={graphData}>
+                      <CartesianGrid strokeDasharray="3 3" className="opacity-50" />
+                      <XAxis dataKey="x" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line
+                        type="monotone"
+                        dataKey="y"
+                        stroke="hsl(var(--primary))"
+                        dot={false}
+                        strokeWidth={2}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+
+            {state.showHistory && (
+              <Card className="lg:col-span-2 h-[600px]">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-lg font-medium">History</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => dispatch({ type: 'CLEAR_HISTORY' })}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[520px] pr-4">
+                    {state.history.map((item, index) => (
+                      <div
+                        key={index}
+                        className="text-sm mb-2 p-2 rounded bg-muted hover:bg-muted/80 cursor-pointer"
+                        onClick={() => dispatch({ type: 'SET_DISPLAY', payload: item.split(' = ')[1] })}
+                      >
+                        {item}
+                      </div>
+                    ))}
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </CardContent>
