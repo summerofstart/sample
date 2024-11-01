@@ -6,11 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggle: document.getElementById('themeToggle'),
         clearHistoryBtn: document.getElementById('clearHistory'),
         calculations: [],
-        
+
         init() {
             this.setupEventListeners();
             this.setupParticles();
             this.loadTheme();
+            this.loadHistoryFromLocalStorage();
         },
 
         setupEventListeners() {
@@ -26,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.operator-btn').forEach(button => {
                 button.addEventListener('click', () => {
                     let operator = button.textContent;
-                    // 演算子の変換
                     switch(operator) {
                         case '×': operator = '*'; break;
                         case '÷': operator = '/'; break;
@@ -45,6 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         this.appendToExpression(func + '(');
                     } else if (func === '√') {
                         this.appendToExpression('sqrt(');
+                    } else if (func === '^') {
+                        this.appendToExpression('**');
                     } else {
                         this.appendToExpression(func);
                     }
@@ -52,19 +54,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
 
-            // イコールボタン
+            // その他のボタン
             document.querySelector('.equals-btn').addEventListener('click', () => {
                 this.calculate();
                 this.addRippleEffect(document.querySelector('.equals-btn'));
             });
 
-            // クリアボタン
             document.querySelector('[data-type="clear"]').addEventListener('click', () => {
                 this.clear();
                 this.addRippleEffect(document.querySelector('[data-type="clear"]'));
             });
 
-            // バックスペースボタン
             document.querySelector('[data-type="backspace"]').addEventListener('click', () => {
                 this.backspace();
                 this.addRippleEffect(document.querySelector('[data-type="backspace"]'));
@@ -76,7 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         appendToExpression(value) {
-            this.displayExpression.value += value;
+            if (this.isValidInput(value)) {
+                this.displayExpression.value += value;
+            }
+        },
+
+        isValidInput(value) {
+            const validInputs = /^[0-9\+\-\*\/$$\.\,πe\s\^$$]$/;
+            return validInputs.test(value) || ['sin', 'cos', 'tan', 'log', 'sqrt'].includes(value);
         },
 
         calculate() {
@@ -94,12 +101,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     .replace(/cos\(/g, 'Math.cos(')
                     .replace(/tan\(/g, 'Math.tan(')
                     .replace(/log\(/g, 'Math.log(')
-                    .replace(/sqrt\(/g, 'Math.sqrt(');
+                    .replace(/sqrt\(/g, 'Math.sqrt(')
+                    .replace(/\^/g, '**');
 
-                // 計算実行
                 const result = this.safeEval(expression);
                 
-                // 結果の表示
                 if (isNaN(result)) {
                     this.displayResult.value = 'Error';
                 } else {
@@ -109,12 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 this.displayResult.value = 'Error';
+                console.error('Calculation error:', error);
             }
         },
 
         safeEval(expression) {
-            // 基本的な安全性チェック
-            if (!/^[0-9\s\+\-\*\/\($\.\,Math\sqrt\sin\cos\tan\log\d\.]+$/.test(expression)) {
+            if (!/^[0-9\s\+\-\*\/\($\.\,Math\sqrt\sin\cos\tan\log\d\.π\e\s\^]+$/.test(expression)) {
                 throw new Error('Invalid expression');
             }
             
@@ -146,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         handleKeyPress(e) {
             const key = e.key;
-            if (/[\d\+\-\*\/$$\.]/.test(key)) {
+            if (/[\d\+\-\*\/\.$$]/.test(key)) {
                 this.appendToExpression(key);
             } else if (key === 'Enter') {
                 this.calculate();
@@ -158,15 +164,28 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         addToHistory(expression, result) {
-            this.calculations.unshift({ expression, result });
+            const historyItem = {
+                expression,
+                result,
+                timestamp: new Date().toLocaleTimeString()
+            };
+            
+            this.calculations.unshift(historyItem);
+            if (this.calculations.length > 10) {
+                this.calculations.pop();
+            }
+            
             this.updateHistoryDisplay();
+            this.saveHistoryToLocalStorage();
         },
 
         updateHistoryDisplay() {
             this.history.innerHTML = this.calculations
-                .map((calc, index) => `
+                .map(calc => `
                     <div class="history-item">
-                        ${calc.expression} = <span>${calc.result}</span>
+                        <div class="history-expression">${calc.expression} =</div>
+                        <div class="history-result">${calc.result}</div>
+                        <div class="history-timestamp">${calc.timestamp}</div>
                     </div>
                 `)
                 .join('');
@@ -175,19 +194,37 @@ document.addEventListener('DOMContentLoaded', () => {
         clearHistory() {
             this.calculations = [];
             this.updateHistoryDisplay();
+            localStorage.removeItem('calculator-history');
+        },
+
+        saveHistoryToLocalStorage() {
+            localStorage.setItem('calculator-history', JSON.stringify(this.calculations));
+        },
+
+        loadHistoryFromLocalStorage() {
+            const saved = localStorage.getItem('calculator-history');
+            if (saved) {
+                this.calculations = JSON.parse(saved);
+                this.updateHistoryDisplay();
+            }
         },
 
         setupParticles() {
             const particles = document.getElementById('particles');
+            const fragment = document.createDocumentFragment();
+            
             for (let i = 0; i < 50; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
-                particle.style.setProperty('--x', `${Math.random() * 100}%`);
-                particle.style.setProperty('--y', `${Math.random() * 100}%`);
-                particle.style.setProperty('--duration', `${Math.random() * 20 + 10}s`);
-                particle.style.setProperty('--delay', `${Math.random() * 10}s`);
-                particles.appendChild(particle);
+                particle.style.cssText = `
+                    --x: ${Math.random() * 100}%;
+                    --y: ${Math.random() * 100}%;
+                    --duration: ${Math.random() * 20 + 10}s;
+                    --delay: ${Math.random() * 10}s;
+                `;
+                fragment.appendChild(particle);
             }
+            particles.appendChild(fragment);
         },
 
         addRippleEffect(button) {
