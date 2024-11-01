@@ -1,78 +1,92 @@
-// ユニット変換のデータと関数
+document.addEventListener('DOMContentLoaded', () => {
+    const expression = document.getElementById('expression');
+    const result = document.getElementById('result');
+    const buttons = document.querySelectorAll('button');
+    const history = document.getElementById('history');
+    const themeToggle = document.getElementById('themeToggle');
+    const clearHistoryBtn = document.getElementById('clearHistory');
+    let calculations = [];
 
-// 単位カテゴリーごとの基本データ
-const unitCategories = {
-  length: [
-    { id: "m", label: "Meters", toBase: 1 },
-    { id: "km", label: "Kilometers", toBase: 1000 },
-    { id: "cm", label: "Centimeters", toBase: 0.01 },
-    { id: "mm", label: "Millimeters", toBase: 0.001 },
-    { id: "ft", label: "Feet", toBase: 0.3048 },
-    { id: "in", label: "Inches", toBase: 0.0254 },
-    { id: "yd", label: "Yards", toBase: 0.9144 },
-    { id: "mi", label: "Miles", toBase: 1609.34 }
-  ],
-  weight: [
-    { id: "kg", label: "Kilograms", toBase: 1 },
-    { id: "g", label: "Grams", toBase: 0.001 },
-    { id: "mg", label: "Milligrams", toBase: 0.000001 },
-    { id: "lb", label: "Pounds", toBase: 0.453592 },
-    { id: "oz", label: "Ounces", toBase: 0.0283495 }
-  ]
-};
+    // テーマ切り替え
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-theme');
+        themeToggle.textContent = document.body.classList.contains('dark-theme') ? '☀️' : '🌙';
+    });
 
-// 単位変換関数
-function convert(value, fromUnit, toUnit, category) {
-  const units = unitCategories[category];
-  const from = units.find(u => u.id === fromUnit);
-  const to = units.find(u => u.id === toUnit);
-  if (!from || !to) return null;
+    // 履歴クリア
+    clearHistoryBtn.addEventListener('click', () => {
+        calculations = [];
+        history.innerHTML = '';
+    });
 
-  const baseValue = value * from.toBase;
-  return baseValue / to.toBase;
-}
+    // ボタンクリックハンドラー
+    buttons.forEach(button => {
+        button.addEventListener('click', () => {
+            const value = button.textContent;
 
-// 最近の変換結果を保存
-let recentConversions = [];
+            if (value === 'C') {
+                expression.value = '';
+                result.value = '';
+            } else if (value === '=') {
+                try {
+                    const exp = expression.value;
+                    const res = evaluateExpression(exp);
+                    result.value = res;
+                    addToHistory(exp, res);
+                } catch (error) {
+                    result.value = 'Error';
+                }
+            } else {
+                if (['sin', 'cos', 'tan', 'log'].includes(value)) {
+                    expression.value += value + '(';
+                } else {
+                    expression.value += value;
+                }
+            }
+        });
+    });
 
-// 単位変換を実行し、結果を表示
-function handleConvert() {
-  const fromValue = parseFloat(document.getElementById("fromValue").value);
-  const fromUnit = document.getElementById("fromUnit").value;
-  const toUnit = document.getElementById("toUnit").value;
-  const category = document.getElementById("category").value;
+    // 数式の評価
+    function evaluateExpression(exp) {
+        // 基本的な数学関数の実装
+        exp = exp.replace(/sin$/g, 'Math.sin(');
+        exp = exp.replace(/cos\(/g, 'Math.cos(');
+        exp = exp.replace(/tan\(/g, 'Math.tan(');
+        exp = exp.replace(/log\(/g, 'Math.log(');
+        exp = exp.replace(/π/g, 'Math.PI');
+        exp = exp.replace(/e/g, 'Math.E');
+        exp = exp.replace(/√/g, 'Math.sqrt');
+        exp = exp.replace(/x²/g, '**2');
+        
+        return eval(exp);
+    }
 
-  if (isNaN(fromValue)) {
-    alert("Please enter a valid number");
-    return;
-  }
+    // 履歴に追加
+    function addToHistory(exp, res) {
+        calculations.unshift({ expression: exp, result: res });
+        updateHistoryDisplay();
+    }
 
-  const result = convert(fromValue, fromUnit, toUnit, category);
-  if (result !== null) {
-    document.getElementById("result").textContent = `${fromValue} ${fromUnit} is ${result.toFixed(2)} ${toUnit}`;
+    // 履歴表示の更新
+    function updateHistoryDisplay() {
+        history.innerHTML = calculations
+            .map(calc => `
+                <div class="history-item">
+                    ${calc.expression} = <span>${calc.result}</span>
+                </div>
+            `)
+            .join('');
+    }
 
-    // 最近の変換結果を更新
-    recentConversions.unshift({ from: fromValue, to: result, fromUnit, toUnit, category });
-    if (recentConversions.length > 10) recentConversions.pop();
-    displayRecentConversions();
-  } else {
-    alert("Conversion not possible with the selected units.");
-  }
-}
-
-// 最近の変換結果を表示
-function displayRecentConversions() {
-  const recentList = document.getElementById("recentConversions");
-  recentList.innerHTML = "";
-
-  recentConversions.forEach(conv => {
-    const item = document.createElement("li");
-    item.textContent = `${conv.from} ${conv.fromUnit} = ${conv.to.toFixed(2)} ${conv.toUnit} (${conv.category})`;
-    recentList.appendChild(item);
-  });
-}
-
-// ページ読み込み時にイベントリスナーを追加
-window.addEventListener("load", () => {
-  document.getElementById("convertButton").addEventListener("click", handleConvert);
+    // キーボード入力のサポート
+    document.addEventListener('keydown', (event) => {
+        const key = event.key;
+        if (/[\d\+\-\*\/\($\.]/.test(key)) {
+            expression.value += key;
+        } else if (key === 'Enter') {
+            document.querySelector('.equals').click();
+        } else if (key === 'Escape') {
+            document.querySelector('.clear').click();
+        }
+    });
 });
