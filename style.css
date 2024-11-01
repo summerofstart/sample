@@ -1,0 +1,178 @@
+:root {
+    --primary-color: #6b46c1;
+    --secondary-color: #805ad5;
+    --bg-color: #f7fafc;
+    --text-color: #2d3748;
+    --button-bg: #fff;
+    --button-hover: #edf2f7;
+    --display-bg: #edf2f7;
+}
+
+.dark-theme {
+    --primary-color: #9f7aea;
+    --secondary-color: #b794f4;
+    --bg-color: #1a202c;
+    --text-color: #fff;
+    --button-bg: #2d3748;
+    --button-hover: #4a5568;
+    --display-bg: #2d3748;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.calculator-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.calculator {
+    background: var(--button-bg);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.3s ease;
+}
+
+.theme-toggle:hover {
+    background-color: var(--button-hover);
+}
+
+.display {
+    margin-bottom: 20px;
+}
+
+.display input {
+    width: 100%;
+    padding: 15px;
+    text-align: right;
+    border: none;
+    background-color: var(--display-bg);
+    color: var(--text-color);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.display input:last-child {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+button {
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    background-color: var(--button-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    background-color: var(--button-hover);
+    transform: translateY(-2px);
+}
+
+.operator {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.function {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.equals {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.clear {
+    color: #e53e3e;
+}
+
+.history-container {
+    margin-top: 20px;
+    border-top: 1px solid var(--button-hover);
+    padding-top: 20px;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.history-header button {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    color: #e53e3e;
+}
+
+.history {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.history-item {
+    padding: 10px;
+    margin: 5px 0;
+    background-color: var(--display-bg);
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.history-item span {
+    color: var(--primary-color);
+    font-weight: bold;
+}
