@@ -1,137 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Advanced Engineer Calculator</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Calculator</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div id="app" class="min-h-screen bg-background p-6">
     <div class="calculator-container">
-      <!-- Header Section -->
-      <header class="calculator-header">
-        <div class="title-section">
-          <i class="calculator-icon"></i>
-          <h1>Engineering Calculator</h1>
-        </div>
-        <div class="controls-section">
-          <button id="historyToggle" class="icon-button">
-            <i class="history-icon"></i>
-          </button>
-          <div class="theme-toggle">
-            <i class="sun-icon"></i>
-            <label class="switch">
-              <input type="checkbox" id="themeSwitch">
-              <span class="slider"></span>
-            </label>
-            <i class="moon-icon"></i>
-          </div>
-        </div>
-      </header>
-
-      <!-- Main Calculator Section -->
-      <main class="calculator-main">
-        <div class="calculator-grid">
-          <!-- Calculator Display -->
-          <div class="display-container">
-            <input type="text" id="display" readonly>
-          </div>
-
-          <!-- Mode Tabs -->
-          <div class="mode-tabs">
-            <button class="tab-button active" data-mode="standard">Standard</button>
-            <button class="tab-button" data-mode="complex">Complex</button>
-            <button class="tab-button" data-mode="programmer">Programmer</button>
-          </div>
-
-          <!-- Standard Calculator Pad -->
-          <div class="calculator-pad standard-pad">
-            <!-- Memory Buttons -->
-            <div class="memory-buttons">
-              <button class="mem-btn" data-memory="MC">MC</button>
-              <button class="mem-btn" data-memory="MR">MR</button>
-              <button class="mem-btn" data-memory="M+">M+</button>
-              <button class="mem-btn" data-memory="M-">M-</button>
-            </div>
-
-            <!-- Number and Operation Buttons -->
-            <div class="number-pad">
-              <!-- Function Buttons -->
-              <button class="func-btn" data-func="sqrt">√</button>
-              <button class="func-btn" data-func="square">x²</button>
-              <button class="op-btn" data-op="/">/</button>
-              <button class="clear-btn" data-op="clear">C</button>
-
-              <!-- Numbers and Basic Operations -->
-              <div class="numbers-grid"></div>
-            </div>
-          </div>
-
-          <!-- Graph Section -->
-          <div class="graph-section">
-            <div class="graph-header">
-              <i class="graph-icon"></i>
-              <h2>Graph Equation</h2>
-            </div>
-            <div class="graph-input">
-              <input type="text" id="equation" placeholder="e.g. Math.sin(x)">
-              <button id="drawGraph">Draw</button>
-            </div>
-            <div id="graphContainer"></div>
-          </div>
-
-          <!-- Unit Converter Section -->
-          <div class="converter-section">
-            <div class="converter-header">
-              <i class="converter-icon"></i>
-              <h2>Unit Converter</h2>
-              <button id="showAllConversions">View All Conversions</button>
+        <div class="calculator">
+            <div class="header">
+                <h1>Advanced Calculator</h1>
+                <button id="themeToggle" class="theme-toggle">🌙</button>
             </div>
             
-            <!-- Quick Convert Panel -->
-            <div class="quick-convert">
-              <div class="recent-conversions">
-                <h3>Recent Conversions</h3>
-                <div id="conversionHistory" class="conversion-list"></div>
-              </div>
-              <div class="quick-buttons">
-                <h3>Quick Convert</h3>
-                <div class="quick-convert-buttons"></div>
-              </div>
+            <div class="display">
+                <input type="text" id="expression" readonly>
+                <input type="text" id="result" readonly>
             </div>
-          </div>
-        </div>
 
-        <!-- History Panel -->
-        <div id="historyPanel" class="history-panel hidden">
-          <div class="history-header">
-            <h2>History</h2>
-            <button id="clearHistory" class="clear-history-btn">
-              <i class="clear-icon"></i>
-            </button>
-          </div>
-          <div id="historyList" class="history-list"></div>
+            <div class="buttons">
+                <!-- 基本操作 -->
+                <button class="operator">(</button>
+                <button class="operator">)</button>
+                <button class="operator">^</button>
+                <button class="clear">C</button>
+
+                <button>7</button>
+                <button>8</button>
+                <button>9</button>
+                <button class="operator">/</button>
+
+                <button>4</button>
+                <button>5</button>
+                <button>6</button>
+                <button class="operator">*</button>
+
+                <button>1</button>
+                <button>2</button>
+                <button>3</button>
+                <button class="operator">-</button>
+
+                <button>0</button>
+                <button>.</button>
+                <button class="equals">=</button>
+                <button class="operator">+</button>
+
+                <!-- 高度な関数 -->
+                <button class="function">sin</button>
+                <button class="function">cos</button>
+                <button class="function">tan</button>
+                <button class="function">log</button>
+
+                <button class="function">√</button>
+                <button class="function">x²</button>
+                <button class="constant">π</button>
+                <button class="constant">e</button>
+            </div>
+
+            <div class="history-container">
+                <div class="history-header">
+                    <h3>History</h3>
+                    <button id="clearHistory">Clear History</button>
+                </div>
+                <div class="history" id="history"></div>
+            </div>
         </div>
-      </main>
     </div>
-
-    <!-- Conversion Modal -->
-    <div id="conversionModal" class="modal hidden">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Unit Converter</h2>
-          <button class="close-modal">&times;</button>
-        </div>
-        <div class="converter-grid">
-          <!-- Converter panels will be inserted here -->
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.1.9/Recharts.js"></script>
-  <script src="calculator.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
