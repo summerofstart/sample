@@ -1,92 +1,121 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const expression = document.getElementById('expression');
-    const result = document.getElementById('result');
-    const buttons = document.querySelectorAll('button');
-    const history = document.getElementById('history');
-    const themeToggle = document.getElementById('themeToggle');
-    const clearHistoryBtn = document.getElementById('clearHistory');
-    let calculations = [];
+    const calculator = {
+        displayExpression: document.getElementById('expression'),
+        displayResult: document.getElementById('result'),
+        historyPanel: document.getElementById('historyPanel'),
+        historyList: document.getElementById('historyList'),
+        currentExpression: '',
+        history: [],
 
-    // テーマ切り替え
-    themeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark-theme');
-        themeToggle.textContent = document.body.classList.contains('dark-theme') ? '☀️' : '🌙';
-    });
+        init() {
+            this.setupEventListeners();
+            this.updateDisplay();
+        },
 
-    // 履歴クリア
-    clearHistoryBtn.addEventListener('click', () => {
-        calculations = [];
-        history.innerHTML = '';
-    });
+        setupEventListeners() {
+            document.querySelectorAll('.key').forEach(key => {
+                key.addEventListener('click', () => this.handleInput(key.textContent));
+            });
 
-    // ボタンクリックハンドラー
-    buttons.forEach(button => {
-        button.addEventListener('click', () => {
-            const value = button.textContent;
+            document.getElementById('themeToggle').addEventListener('click', () => {
+                document.body.classList.toggle('dark-theme');
+            });
 
-            if (value === 'C') {
-                expression.value = '';
-                result.value = '';
-            } else if (value === '=') {
+            document.getElementById('historyToggle').addEventListener('click', () => {
+                this.historyPanel.classList.toggle('active');
+            });
+
+            document.getElementById('clearHistory').addEventListener('click', () => {
+                this.history = [];
+                this.updateHistory();
+            });
+
+            document.addEventListener('keydown', (e) => this.handleKeyboardInput(e));
+        },
+
+        handleInput(value) {
+            switch(value) {
+                case '=':
+                    this.calculate();
+                    break;
+                case 'C':
+                    this.clear();
+                    break;
+                default:
+                    this.appendValue(value);
+            }
+            this.updateDisplay();
+        },
+
+        appendValue(value) {
+            this.currentExpression += value;
+        },
+
+        calculate() {
+            try {
+                const result = eval(this.prepareExpression(this.currentExpression));
+                this.history.unshift({
+                    expression: this.currentExpression,
+                    result: result
+                });
+                this.currentExpression = result.toString();
+                this.updateHistory();
+            } catch (error) {
+                this.currentExpression = 'Error';
+            }
+        },
+
+        prepareExpression(exp) {
+            return exp
+                .replace(/×/g, '*')
+                .replace(/÷/g, '/')
+                .replace(/sin/g, 'Math.sin')
+                .replace(/cos/g, 'Math.cos')
+                .replace(/tan/g, 'Math.tan')
+                .replace(/√/g, 'Math.sqrt')
+                .replace(/π/g, 'Math.PI');
+        },
+
+        clear() {
+            this.currentExpression = '';
+            this.displayResult.textContent = '0';
+        },
+
+        updateDisplay() {
+            this.displayExpression.textContent = this.currentExpression;
+            if (this.currentExpression && this.currentExpression !== 'Error') {
                 try {
-                    const exp = expression.value;
-                    const res = evaluateExpression(exp);
-                    result.value = res;
-                    addToHistory(exp, res);
+                    const result = eval(this.prepareExpression(this.currentExpression));
+                    this.displayResult.textContent = result;
                 } catch (error) {
-                    result.value = 'Error';
-                }
-            } else {
-                if (['sin', 'cos', 'tan', 'log'].includes(value)) {
-                    expression.value += value + '(';
-                } else {
-                    expression.value += value;
+                    this.displayResult.textContent = this.currentExpression;
                 }
             }
-        });
-    });
+        },
 
-    // 数式の評価
-    function evaluateExpression(exp) {
-        // 基本的な数学関数の実装
-        exp = exp.replace(/sin$/g, 'Math.sin(');
-        exp = exp.replace(/cos\(/g, 'Math.cos(');
-        exp = exp.replace(/tan\(/g, 'Math.tan(');
-        exp = exp.replace(/log\(/g, 'Math.log(');
-        exp = exp.replace(/π/g, 'Math.PI');
-        exp = exp.replace(/e/g, 'Math.E');
-        exp = exp.replace(/√/g, 'Math.sqrt');
-        exp = exp.replace(/x²/g, '**2');
-        
-        return eval(exp);
-    }
+        updateHistory() {
+            this.historyList.innerHTML = this.history
+                .map(item => `
+                    <div class="history-item">
+                        <div class="expression">${item.expression}</div>
+                        <div class="result">${item.result}</div>
+                    </div>
+                `)
+                .join('');
+        },
 
-    // 履歴に追加
-    function addToHistory(exp, res) {
-        calculations.unshift({ expression: exp, result: res });
-        updateHistoryDisplay();
-    }
-
-    // 履歴表示の更新
-    function updateHistoryDisplay() {
-        history.innerHTML = calculations
-            .map(calc => `
-                <div class="history-item">
-                    ${calc.expression} = <span>${calc.result}</span>
-                </div>
-            `)
-            .join('');
-    }
-
-    // キーボード入力のサポート
-    document.addEventListener('keydown', (event) => {
-        const key = event.key;
-        if (/[\d\+\-\*\/\($\.]/.test(key)) {
-            expression.value += key;
-        } else if (key === 'Enter') {
-            document.querySelector('.equals').click();
-        } else if (key === 'Escape') {
-            document.querySelector('.clear').click();
+        handleKeyboardInput(e) {
+            const key = e.key;
+            if (/[\d\+\-\*\/$$\.]/.test(key)) {
+                this.handleInput(key);
+            } else if (key === 'Enter') {
+                this.handleInput('=');
+            } else if (key === 'Escape') {
+                this.handleInput('C');
+            }
+            e.preventDefault();
         }
-    });
+    };
+
+    calculator.init();
 });
