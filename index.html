@@ -8,29 +8,30 @@
 </head>
 <body>
     <div class="card">
-        <div class="title">フォーマット変換ツール</div>
-        <div class="controls">
-            <label for="input">入力データ:</label>
-            <select id="format-selector" data-format>
-                <option value="json">JSON</option>
-                <option value="xml">XML</option>
-                <option value="yaml">YAML</option>
-            </select>
-        </div>
-        <textarea id="input" class="textarea" placeholder="JSON、XML、YAMLのいずれかを入力してください"></textarea>
+        <h1 class="title">フォーマット変換ツール</h1>
+        
+        <textarea id="input" class="textarea" placeholder="ここに入力（JSON, XML, YAML形式）をしてください..."></textarea>
+        
         <div class="button-group">
-            <button id="convert" class="button primary">変換</button>
+            <button class="button active" data-format="json">JSON</button>
+            <button class="button" data-format="xml">XML</button>
+            <button class="button" data-format="yaml">YAML</button>
+        </div>
+        
+        <button id="convert" class="button primary">変換</button>
+        
+        <div class="controls">
+            <button id="copy" class="button">コピー</button>
             <button id="reset" class="button">リセット</button>
         </div>
+        
         <div id="error" class="error"></div>
-        <div id="output-container" style="display:none;">
-            <textarea id="output" class="textarea" placeholder="変換結果" readonly></textarea>
-            <div class="button-group">
-                <button id="copy" class="button">コピー</button>
-                <span id="copy-status" style="display:none;">コピーしました！</span>
-            </div>
+        <div id="output-container" style="display: none;">
+            <textarea id="output" class="textarea" placeholder="変換結果がここに表示されます..." readonly></textarea>
+            <div id="copy-status" class="success"></div>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
