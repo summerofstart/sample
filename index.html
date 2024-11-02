@@ -3,176 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="JSON、XML、YAMLのフォーマット変換ツール">
-    <title>フォーマット変換ツール</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- AdSenseのスクリプトをここに配置 -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXX"
-     crossorigin="anonymous"></script>
+    <title>フォーマット変換</title>
     <style>
-        /* 前回のCSSをここに配置 */
-        /* 追加のスタイル */
-        .loading {
-            display: none;
-            text-align: center;
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
             padding: 20px;
         }
 
-        .loading::after {
-            content: '';
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .title {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
         }
 
-        .sample-button {
-            font-size: 12px;
-            padding: 4px 8px;
-            margin-left: 8px;
-            background: #f3f4f6;
-            border: 1px solid #e5e7eb;
+        .textarea {
+            width: 100%;
+            height: 200px;
+            padding: 8px;
+            margin: 8px 0;
+            font-family: monospace;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 16px 0;
+        }
+
+        .button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
             border-radius: 4px;
             cursor: pointer;
+            background: white;
         }
 
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 8px;
-            background: #4caf50;
+        .button.active {
+            background: #e6f3ff;
+        }
+
+        .button.primary {
+            background: #2563eb;
             color: white;
-            display: none;
-            animation: slideIn 0.3s ease-out;
-            z-index: 1000;
+            border: none;
         }
 
-        @keyframes slideIn {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
+        .error {
+            color: #dc2626;
+            background: #fee2e2;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 8px 0;
+            display: none;
+        }
+
+        .success {
+            color: #16a34a;
+            text-align: center;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 8px 0;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="main-content">
-            <!-- 上部広告 -->
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-XXXXXXXXXXXXXX"
-                 data-ad-slot="XXXXXXXXXX"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
+    <div class="card">
+        <h1 class="title">フォーマット変換</h1>
+        
+        <div>
+            <label>JSONを入力:</label>
+            <textarea id="input" class="textarea" placeholder='{"example": "value"}'></textarea>
+        </div>
 
-            <div class="card">
-                <h1 class="title">フォーマット変換ツール</h1>
-                
+        <div class="button-group">
+            <button class="button active" data-format="json">JSON</button>
+            <button class="button" data-format="xml">XML</button>
+            <button class="button" data-format="yaml">YAML</button>
+        </div>
+
+        <div class="button-group">
+            <button class="button primary" id="convert">変換</button>
+        </div>
+
+        <div id="error" class="error"></div>
+
+        <div id="output-container" style="display: none;">
+            <div class="controls">
+                <label>結果:</label>
                 <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <label class="label">JSONを入力:</label>
-                        <button class="sample-button" id="sampleData">サンプルデータを挿入</button>
-                    </div>
-                    <textarea id="input" class="textarea" placeholder='{"example": "value"}'></textarea>
-                </div>
-
-                <div class="button-group">
-                    <button class="button active" data-format="json">JSON</button>
-                    <button class="button" data-format="xml">XML</button>
-                    <button class="button" data-format="yaml">YAML</button>
-                </div>
-
-                <div class="button-group">
-                    <button class="button primary" id="convert">変換</button>
-                </div>
-
-                <div id="loading" class="loading"></div>
-                <div id="error" class="error"></div>
-
-                <div id="output-container" style="display: none;">
-                    <div class="controls">
-                        <label class="label">結果:</label>
-                        <div>
-                            <button class="button" id="copy">コピー</button>
-                            <button class="button" id="reset">リセット</button>
-                            <button class="button" id="download">ダウンロード</button>
-                        </div>
-                    </div>
-                    <textarea id="output" class="textarea" readonly></textarea>
+                    <button class="button" id="copy">コピー</button>
+                    <button class="button" id="reset">リセット</button>
                 </div>
             </div>
-
-            <!-- 下部広告 -->
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-XXXXXXXXXXXXXX"
-                 data-ad-slot="XXXXXXXXXX"
-                 data-ad-format="auto"
-                 data-full-width-responsive="true"></ins>
-        </div>
-
-        <!-- サイドバー -->
-        <div class="sidebar">
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-client="ca-pub-XXXXXXXXXXXXXX"
-                 data-ad-slot="XXXXXXXXXX"
-                 data-ad-format="vertical"
-                 data-full-width-responsive="false"></ins>
+            <textarea id="output" class="textarea" readonly></textarea>
+            <div id="copy-status" class="success"></div>
         </div>
     </div>
-
-    <div id="notification" class="notification"></div>
-
-    <footer class="footer">
-        <p>© 2024 フォーマット変換ツール - すべての権利を保有</p>
-    </footer>
 
     <script>
         // 要素の取得
         const input = document.getElementById('input');
         const output = document.getElementById('output');
         const errorDiv = document.getElementById('error');
-        const loading = document.getElementById('loading');
+        const copyStatus = document.getElementById('copy-status');
         const outputContainer = document.getElementById('output-container');
-        const notification = document.getElementById('notification');
         let currentFormat = 'json';
-
-        // サンプルデータ
-        const sampleData = {
-            "person": {
-                "name": "山田太郎",
-                "age": 30,
-                "address": {
-                    "city": "東京",
-                    "country": "日本"
-                },
-                "hobbies": ["読書", "旅行", "プログラミング"]
-            }
-        };
-
-        // 通知を表示する関数
-        function showNotification(message, duration = 3000) {
-            notification.textContent = message;
-            notification.style.display = 'block';
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, duration);
-        }
-
-        // サンプルデータを挿入
-        document.getElementById('sampleData').addEventListener('click', () => {
-            input.value = JSON.stringify(sampleData, null, 2);
-        });
 
         // フォーマットボタンの処理
         document.querySelectorAll('[data-format]').forEach(button => {
@@ -193,8 +147,7 @@
                 const value = obj[key];
                 if (Array.isArray(value)) {
                     value.forEach(item => {
-                        xml += `${indent}<${key}>${typeof item === 'object' ? 
-                            '\n' + formatXML(item, level + 1) + indent : item}</${key}>\n`;
+                        xml += `${indent}<${key}>\n${formatXML(item, level + 1)}${indent}</${key}>\n`;
                     });
                 } else if (typeof value === 'object' && value !== null) {
                     xml += `${indent}<${key}>\n${formatXML(value, level + 1)}${indent}</${key}>\n`;
@@ -214,8 +167,7 @@
                 if (Array.isArray(value)) {
                     yaml += `${indent}${key}:\n`;
                     value.forEach(item => {
-                        yaml += `${indent}- ${typeof item === 'object' ? 
-                            '\n' + formatYAML(item, level + 2) : item}\n`;
+                        yaml += `${indent}- ${typeof item === 'object' ? '\n' + formatYAML(item, level + 2) : item}\n`;
                     });
                 } else if (typeof value === 'object' && value !== null) {
                     yaml += `${indent}${key}:\n${formatYAML(value, level + 1)}`;
@@ -227,22 +179,11 @@
         }
 
         // 変換処理
-        document.getElementById('convert').addEventListener('click', async () => {
-            errorDiv.style.display = 'none';
-            loading.style.display = 'block';
-            outputContainer.style.display = 'none';
-
+        document.getElementById('convert').addEventListener('click', () => {
             try {
-                // 入力値のバリデーション
-                if (!input.value.trim()) {
-                    throw new Error('JSONを入力してください');
-                }
-
+                errorDiv.style.display = 'none';
                 const parsedInput = JSON.parse(input.value);
                 let result = '';
-
-                // 非同期処理をシミュレート
-                await new Promise(resolve => setTimeout(resolve, 500));
 
                 switch (currentFormat) {
                     case 'json':
@@ -259,36 +200,19 @@
                 output.value = result;
                 outputContainer.style.display = 'block';
             } catch (err) {
-                errorDiv.textContent = err.message === 'JSONを入力してください' ? 
-                    err.message : 'JSONの形式が正しくありません';
+                errorDiv.textContent = 'JSONの形式が正しくありません';
                 errorDiv.style.display = 'block';
-            } finally {
-                loading.style.display = 'none';
             }
         });
 
         // コピー処理
-        document.getElementById('copy').addEventListener('click', async () => {
-            try {
-                await navigator.clipboard.writeText(output.value);
-                showNotification('コピーしました！');
-            } catch (err) {
-                showNotification('コピーに失敗しました', 'error');
-            }
-        });
-
-        // ダウンロード処理
-        document.getElementById('download').addEventListener('click', () => {
-            const blob = new Blob([output.value], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `converted.${currentFormat}`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showNotification('ダウンロードを開始しました');
+        document.getElementById('copy').addEventListener('click', () => {
+            navigator.clipboard.writeText(output.value);
+            copyStatus.textContent = 'コピーしました！';
+            copyStatus.style.display = 'block';
+            setTimeout(() => {
+                copyStatus.style.display = 'none';
+            }, 2000);
         });
 
         // リセット処理
@@ -296,12 +220,9 @@
             input.value = '';
             output.value = '';
             errorDiv.style.display = 'none';
+            copyStatus.style.display = 'none';
             outputContainer.style.display = 'none';
-            showNotification('リセットしました');
         });
-
-        // AdSenseの初期化
-        (adsbygoogle = window.adsbygoogle || []).push({});
     </script>
 </body>
 </html>
