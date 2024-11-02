@@ -1,87 +1,396 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quantum Calculator</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>フォーマット変換ツール</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #818cf8;
+            --background-color: #f3f4f6;
+            --card-background: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .main-content {
+            width: 100%;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .ad-space {
+            background: var(--card-background);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .ad-space.vertical {
+            min-height: 600px;
+        }
+
+        .ad-space.horizontal {
+            height: 90px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: var(--card-background);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+
+        .textarea {
+            width: 100%;
+            height: 200px;
+            padding: 12px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            resize: vertical;
+            font-size: 14px;
+            line-height: 1.5;
+            transition: border-color 0.2s;
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            border: 1px solid var(--border-color);
+            background: white;
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .button.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .button.primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .button.primary:hover {
+            background: var(--secondary-color);
+        }
+
+        .error {
+            color: #dc2626;
+            background: #fee2e2;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 12px 0;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .success {
+            color: #16a34a;
+            text-align: center;
+            margin-top: 12px;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+        }
+
+        .label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ツールチップのスタイル */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* フッター */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
 </head>
-<body class="light-theme">
-    <div class="particles" id="particles"></div>
-    <div class="calculator-container">
-        <div class="calculator">
-            <div class="glass-effect"></div>
-            <div class="header">
-                <div class="title-section">
-                    <h1>Quantum Calculator</h1>
-                    <span class="subtitle">Advanced Computing</span>
+<body>
+    <div class="container">
+        <div class="main-content">
+            <!-- 上部広告 -->
+            <div class="ad-space horizontal">
+                広告スペース（728×90）
+            </div>
+
+            <div class="card">
+                <h1 class="title">フォーマット変換ツール</h1>
+                
+                <div>
+                    <label class="label">JSONを入力:</label>
+                    <textarea id="input" class="textarea" placeholder='{"example": "value"}'></textarea>
                 </div>
-                <div class="controls">
-                    <button id="themeToggle" class="theme-toggle">
-                        <svg class="sun-icon" viewBox="0 0 24 24"><path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2a7 7 0 1 1 0-14 7 7 0 0 1 0 14zM12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                        <svg class="moon-icon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0-6 6c0 3.314 2.686 6 6 6s6-2.686 6-6a6 6 0 0 0-6-6z"/></svg>
-                    </button>
+
+                <div class="button-group">
+                    <button class="button active" data-format="json">JSON</button>
+                    <button class="button" data-format="xml">XML</button>
+                    <button class="button" data-format="yaml">YAML</button>
+                </div>
+
+                <div class="button-group">
+                    <button class="button primary" id="convert">変換</button>
+                </div>
+
+                <div id="error" class="error"></div>
+
+                <div id="output-container" style="display: none;">
+                    <div class="controls">
+                        <label class="label">結果:</label>
+                        <div class="tooltip">
+                            <button class="button" id="copy">コピー</button>
+                            <span class="tooltiptext">クリップボードにコピー</span>
+                        </div>
+                        <button class="button" id="reset">リセット</button>
+                    </div>
+                    <textarea id="output" class="textarea" readonly></textarea>
+                    <div id="copy-status" class="success"></div>
                 </div>
             </div>
 
-            <div class="display-container">
-                <div class="display">
-                    <input type="text" id="expression" readonly placeholder="Enter expression">
-                    <input type="text" id="result" readonly placeholder="Result">
-                </div>
-                <div class="display-gradient"></div>
+            <!-- 下部広告 -->
+            <div class="ad-space horizontal">
+                広告スペース（728×90）
+            </div>
+        </div>
+
+        <!-- サイドバー -->
+        <div class="sidebar">
+            <!-- サイドバー広告 -->
+            <div class="ad-space vertical">
+                広告スペース（300×600）
             </div>
 
-            <div class="buttons">
-                <button class="function-btn" data-type="clear">AC</button>
-                <button class="function-btn" data-type="bracket">(</button>
-                <button class="function-btn" data-type="bracket">)</button>
-                <button class="operator-btn" data-type="operator">÷</button>
-
-                <button class="number-btn">7</button>
-                <button class="number-btn">8</button>
-                <button class="number-btn">9</button>
-                <button class="operator-btn" data-type="operator">×</button>
-
-                <button class="number-btn">4</button>
-                <button class="number-btn">5</button>
-                <button class="number-btn">6</button>
-                <button class="operator-btn" data-type="operator">−</button>
-
-                <button class="number-btn">1</button>
-                <button class="number-btn">2</button>
-                <button class="number-btn">3</button>
-                <button class="operator-btn" data-type="operator">+</button>
-
-                <button class="number-btn">0</button>
-                <button class="number-btn">.</button>
-                <button class="equals-btn" data-type="equals">=</button>
-                <button class="function-btn" data-type="backspace">⌫</button>
-            </div>
-
-            <div class="advanced-functions">
-                <button class="advanced-btn" data-type="function">sin</button>
-                <button class="advanced-btn" data-type="function">cos</button>
-                <button class="advanced-btn" data-type="function">tan</button>
-                <button class="advanced-btn" data-type="function">log</button>
-                <button class="advanced-btn" data-type="constant">π</button>
-                <button class="advanced-btn" data-type="constant">e</button>
-                <button class="advanced-btn" data-type="function">√</button>
-                <button class="advanced-btn" data-type="operator">^</button>
-            </div>
-
-            <div class="history-panel">
-                <div class="history-header">
-                    <h3>History</h3>
-                    <button id="clearHistory" class="clear-history-btn">
-                        <svg viewBox="0 0 24 24"><path d="M19 6h-4V5a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v1H5a1 1 0 1 0 0 2h1v11a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V8h1a1 1 0 1 0 0-2z"/></svg>
-                    </button>
-                </div>
-                <div class="history" id="history"></div>
+            <!-- 追加の広告スペース -->
+            <div class="ad-space vertical">
+                広告スペース（300×250）
             </div>
         </div>
     </div>
-    <script src="script.js"></script>
+
+    <footer class="footer">
+        <p>© 2024 フォーマット変換ツール - すべての権利を保有</p>
+    </footer>
+
+    <script>
+        // JavaScriptコードは前回と同じ
+        // 要素の取得
+        const input = document.getElementById('input');
+        const output = document.getElementById('output');
+        const errorDiv = document.getElementById('error');
+        const copyStatus = document.getElementById('copy-status');
+        const outputContainer = document.getElementById('output-container');
+        let currentFormat = 'json';
+
+        // フォーマットボタンの処理
+        document.querySelectorAll('[data-format]').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('[data-format]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                button.classList.add('active');
+                currentFormat = button.dataset.format;
+            });
+        });
+
+        // XMLフォーマット関数
+        function formatXML(obj, level = 0) {
+            const indent = '  '.repeat(level);
+            let xml = '';
+            for (const key in obj) {
+                const value = obj[key];
+                if (Array.isArray(value)) {
+                    value.forEach(item => {
+                        xml += `${indent}<${key}>\n${formatXML(item, level + 1)}${indent}</${key}>\n`;
+                    });
+                } else if (typeof value === 'object' && value !== null) {
+                    xml += `${indent}<${key}>\n${formatXML(value, level + 1)}${indent}</${key}>\n`;
+                } else {
+                    xml += `${indent}<${key}>${value}</${key}>\n`;
+                }
+            }
+            return xml;
+        }
+
+        // YAMLフォーマット関数
+        function formatYAML(obj, level = 0) {
+            const indent = '  '.repeat(level);
+            let yaml = '';
+            for (const key in obj) {
+                const value = obj[key];
+                if (Array.isArray(value)) {
+                    yaml += `${indent}${key}:\n`;
+                    value.forEach(item => {
+                        yaml += `${indent}- ${typeof item === 'object' ? '\n' + formatYAML(item, level + 2) : item}\n`;
+                    });
+                } else if (typeof value === 'object' && value !== null) {
+                    yaml += `${indent}${key}:\n${formatYAML(value, level + 1)}`;
+                } else {
+                    yaml += `${indent}${key}: ${value}\n`;
+                }
+            }
+            return yaml;
+        }
+
+        // 変換処理
+        document.getElementById('convert').addEventListener('click', () => {
+            try {
+                errorDiv.style.display = 'none';
+                const parsedInput = JSON.parse(input.value);
+                let result = '';
+
+                switch (currentFormat) {
+                    case 'json':
+                        result = JSON.stringify(parsedInput, null, 2);
+                        break;
+                    case 'xml':
+                        result = `<?xml version="1.0" encoding="UTF-8"?>\n<root>\n${formatXML(parsedInput, 1)}</root>`;
+                        break;
+                    case 'yaml':
+                        result = formatYAML(parsedInput);
+                        break;
+                }
+
+                output.value = result;
+                outputContainer.style.display = 'block';
+            } catch (err) {
+                errorDiv.textContent = 'JSONの形式が正しくありません';
+                errorDiv.style.display = 'block';
+            }
+        });
+
+        // コピー処理
+        document.getElementById('copy').addEventListener('click', () => {
+            navigator.clipboard.writeText(output.value);
+            copyStatus.textContent = 'コピーしました！';
+            copyStatus.style.display = 'block';
+            setTimeout(() => {
+                copyStatus.style.display = 'none';
+            }, 2000);
+        });
+
+        // リセット処理
+        document.getElementById('reset').addEventListener('click', () => {
+            input.value = '';
+            output.value = '';
+            errorDiv.style.display = 'none';
+            copyStatus.style.display = 'none';
+            outputContainer.style.display = 'none';
+        });
+    </script>
 </body>
 </html>
