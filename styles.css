@@ -14,10 +14,10 @@ body {
 
 /* コンテナ */
 .container {
-    max-width: 600px; /* 幅を600pxに変更 */
+    max-width: 400px; /* 幅を400pxに変更 */
     width: 100%; /* 幅を100%に */
     margin: 20px; /* 小さなマージン */
-    padding: 40px;
+    padding: 30px; /* パディングを減少 */
     border-radius: 16px;
     background: #ffffff;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
@@ -50,12 +50,12 @@ body {
 /* タイトル */
 .title {
     text-align: center;
-    font-size: 36px;
+    font-size: 30px; /* タイトルのフォントサイズを減少 */
     margin-bottom: 20px;
     color: #2d3748;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px; /* スペースを小さく */
     position: relative; /* 擬似要素用 */
 }
 
@@ -71,8 +71,8 @@ body {
 /* テキストエリア */
 .textarea {
     width: 100%;
-    height: 200px;
-    padding: 16px;
+    height: 150px; /* テキストエリアの高さを減少 */
+    padding: 12px;
     margin: 12px 0;
     font-family: 'Consolas', monospace;
     border: 2px solid #cbd5e0;
@@ -93,14 +93,14 @@ body {
 .button-group {
     display: flex;
     justify-content: center;
-    gap: 12px;
+    gap: 8px; /* ボタン間の隙間を減少 */
     margin: 20px 0;
     flex-wrap: wrap; /* ボタンを折り返す */
 }
 
 /* ボタン */
 .button {
-    padding: 12px 24px;
+    padding: 10px 20px; /* ボタンのパディングを減少 */
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -110,8 +110,7 @@ body {
     transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
     position: relative; /* 擬似要素用 */
     overflow: hidden;
-    min-width: 120px; /* ボタンの最小幅 */
-    margin: 5px; /* ボタンの間隔 */
+    min-width: 100px; /* ボタンの最小幅 */
 }
 
 .button::after {
@@ -193,18 +192,18 @@ body {
     }
 
     .title {
-        font-size: 28px; /* タイトルのフォントサイズを減少 */
+        font-size: 24px; /* タイトルのフォントサイズを減少 */
     }
 
     .textarea {
-        height: 150px; /* テキストエリアの高さを減少 */
-        padding: 12px; /* パディングを減少 */
+        height: 120px; /* テキストエリアの高さを減少 */
+        padding: 10px; /* パディングを減少 */
     }
 
     .button {
-        padding: 10px 20px; /* ボタンのパディングを減少 */
+        padding: 8px 16px; /* ボタンのパディングを減少 */
         font-size: 14px; /* ボタンのフォントサイズを減少 */
-        min-width: 100px; /* ボタンの最小幅を減少 */
+        min-width: 80px; /* ボタンの最小幅を減少 */
     }
 
     .button-group {
