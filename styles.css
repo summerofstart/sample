@@ -1,15 +1,26 @@
+/* 全体のスタイル */
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, #0d47a1 100%), 
+                repeating-linear-gradient(
+                    45deg,
+                    rgba(255, 255, 255, 0.05),
+                    rgba(255, 255, 255, 0.05) 10px,
+                    transparent 10px,
+                    transparent 20px
+                );
+    background-blend-mode: overlay;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    color: #f0f4f8;
 }
 
+/* カードスタイル */
 .card {
     background: white;
     border-radius: 16px;
@@ -22,6 +33,7 @@ body {
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
 }
 
+/* タイトルのスタイル */
 .title {
     text-align: center;
     font-size: 30px;
@@ -32,6 +44,7 @@ body {
     letter-spacing: 1.5px;
 }
 
+/* テキストエリアのスタイル */
 .textarea {
     width: 100%;
     height: 220px;
@@ -51,6 +64,7 @@ body {
     outline: none;
 }
 
+/* ボタングループのスタイル */
 .button-group {
     display: flex;
     justify-content: center;
@@ -58,6 +72,7 @@ body {
     margin: 25px 0;
 }
 
+/* ボタンのスタイル */
 .button {
     padding: 12px 24px;
     border: 2px solid #e2e8f0;
@@ -71,7 +86,6 @@ body {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-
 .button.active {
     background: linear-gradient(to bottom, #4a5568, #2d3748);
     color: white;
@@ -88,6 +102,7 @@ body {
     background: linear-gradient(to right, #2b6cb0, #2a4365);
 }
 
+/* エラーメッセージ */
 .error {
     color: #e53e3e;
     background: linear-gradient(to right, #fff5f5, #fed7d7);
@@ -99,6 +114,7 @@ body {
     font-weight: 500;
 }
 
+/* 成功メッセージ */
 .success {
     color: #38a169;
     text-align: center;
@@ -107,6 +123,7 @@ body {
     font-weight: 500;
 }
 
+/* コントロールエリア */
 .controls {
     display: flex;
     justify-content: space-between;
