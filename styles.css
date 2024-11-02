@@ -14,7 +14,7 @@ body {
 
 /* コンテナ */
 .container {
-    max-width: 800px;
+    max-width: 600px; /* 幅を600pxに変更 */
     width: 100%; /* 幅を100%に */
     margin: 20px; /* 小さなマージン */
     padding: 40px;
